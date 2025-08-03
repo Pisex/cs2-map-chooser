@@ -1,0 +1,90 @@
+"Phrases"
+{
+	"VoteIsActive"
+	{
+		"ru"	"В данный момент голосование недоступно!"
+		"en"	"Voting is currently unavailable"
+	}
+	"MinPlayers"
+	{
+		"ru"	"Недостаточно игроков для голосования"
+		"en"	"Not enough players to vote"
+	}
+	"AlreadyVoted"
+	{
+		"ru"	"Вы уже проголосовали за начало голосования!"
+		"en"	"You have already voted to start voting"
+	}
+	"PlayerVote"
+	{
+		"ru"	"Игрок %s проголосовал за начало голосования (%i/%i)"
+		"en"	"Player %s has voted to start voting (%i/%i)"
+	}
+	"PlayerVoteMap"
+	{
+		"ru"	"Игрок %s проголосовал за карту %s"
+		"en"	"Player %s has voted for map %s"
+	}
+	"PlayerVoteMapCurrent"
+	{
+		"ru"	"Игрок %s хочет оставить текущую карту"
+		"en"	"Player %s wants to keep the current map"
+	}
+	"VoteStarted"
+	{
+		"ru"	"Начинается голосование за смену карты, у вас есть %i секунд для голосования"
+		"en"	"Voting to change the map has started. You have %i seconds to vote"
+	}
+	"VoteEnded"
+	{
+		"ru"	"Голосование завершено, карта %s набрала %i голосов и будет сменена"
+		"en"	"The voting has ended. Map %s received %i votes and will be changed"
+	}
+	"VoteFailed"
+	{
+		"ru"	"Голосование завершено, остается текущая карта"
+		"en"	"The voting has ended. You will stay on the current map"
+	}
+    "VoteIsActiveTime"
+    {
+        "ru"    "Голосование будет доступно через %i секунд"
+        "en"    "Voting will be available in %i seconds"
+    }
+	"VoteIsActiveFinalized"
+	{
+		"ru"	"Голосование уже завершено, следующая карта будет %s"
+		"en"	"The voting has already ended. The next map will be %s"
+	}
+	"NominationVoteIsActive"
+	{
+		"ru"	"Номинирование карт доступно до начала голосования"
+		"en"	"Map nomination is available until the voting starts"
+	}
+	"AlreadyNominated"
+	{
+		"ru"	"Вы уже номинировали карту %s"
+		"en"	"You have already nominated map %s"
+	}
+	"PlayerNominateMap"
+	{
+		"ru"	"Игрок %s предложил карту %s"
+		"en"	"Player %s has nominated map %s"
+	}
+
+	//MENU
+	"VoteMenuTitle"
+	{
+		"ru"	"Выберите следующую карту"
+		"en"	"Select the next map"
+	}
+	"VoteMenuCurrentMap"
+	{
+		"ru"	"Текущая карта"
+		"en"	"Current map"
+	}
+	"NominationMenuTitle"
+	{
+		"ru"	"Номинирование карты"
+		"en"	"Map nomination"
+	}
+}
