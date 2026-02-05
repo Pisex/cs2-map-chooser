@@ -88,23 +88,6 @@ const char* GetTranslation(const char* szKey)
 	return it->second.c_str();
 }
 
-void OnStartupServer()
-{
-	g_pEntitySystem = GameEntitySystem();
-	g_iLastChange = std::time(nullptr) + g_Settings.iTimeoutStartMap;
-	g_bActive = true;
-	g_iFinalizeVote = -1;
-	g_bFinalized = false;
-	g_bVoteForce = false;
-
-	for (int i = 0; i < 64; i++)
-	{
-		g_bVote[i] = false;
-		g_iVotes[i] = -1;
-		g_iNominationVotes[i] = -1;
-	}
-}
-
 bool MapChooser::Load(PluginId id, ISmmAPI* ismm, char* error, size_t maxlen, bool late)
 {
 	PLUGIN_SAVEVARS();
@@ -206,6 +189,8 @@ void ChangeLevel()
 	} else {
 		g_SMAPI->Format(szMap, sizeof(szMap), "%s", g_pUtils->GetCGlobalVars()->mapname);
 	}
+
+	g_pUtils->PrintToChatAll(GetTranslation("ChangingLevel"), szMap);
 	
 	if(!engine->IsMapValid(szMap)) {
 		g_SMAPI->Format(szBuffer, sizeof(szBuffer), "ds_workshop_changelevel %s", szMap);
@@ -336,6 +321,23 @@ void StartVote(bool bForce = false)
 	}
 }
 
+void OnStartupServer()
+{
+	g_pEntitySystem = GameEntitySystem();
+	g_iLastChange = std::time(nullptr) + g_Settings.iTimeoutStartMap;
+	g_bActive = true;
+	g_iFinalizeVote = -1;
+	g_bFinalized = false;
+	g_bVoteForce = false;
+
+	for (int i = 0; i < 64; i++)
+	{
+		g_bVote[i] = false;
+		g_iVotes[i] = -1;
+		g_iNominationVotes[i] = -1;
+	}
+}
+
 void OnCSWinPanelMatch(const char* szName, IGameEvent* pEvent, bool bDontBroadcast)
 {
 	if(!pEvent) return;
@@ -349,9 +351,9 @@ void OnRoundEnd(const char* szName, IGameEvent* pEvent, bool bDontBroadcast)
 {
 	if (!pEvent) return;
 
-	if (!g_bActive && g_bFinalized) {
-		if(g_bVoteForce && g_RTVSettings.bType) FinalizeVote();
-		else if(!g_bVoteForce && g_Settings.iType == 1) {
+	if (!g_bActive) {
+		if(g_bVoteForce && g_RTVSettings.bType && !g_bFinalized) FinalizeVote();
+		else if(!g_bVoteForce && g_Settings.iType == 1 && g_bFinalized) {
 			ChangeLevel();
 		}
 	}
@@ -443,6 +445,13 @@ void MapChooser::AllPluginsLoaded()
 	if(g_Settings.iType == 2) g_pUtils->HookEvent(g_PLID, "cs_win_panel_match", OnCSWinPanelMatch);
 	
 	g_pUtils->HookEvent(g_PLID, "round_end", OnRoundEnd);
+	g_pUtils->HookEvent(g_PLID, "round_start", [](const char* szName, IGameEvent* pEvent, bool bDontBroadcast) {
+		if (!pEvent) return;
+		if (mp_maxrounds->GetInt() <= 0 || g_Settings.iTimeEndRounds <= 0) return;
+		int iRound = g_pUtils->GetCCSGameRules()->m_totalRoundsPlayed();
+		int iMaxRounds = mp_maxrounds->GetInt();
+		if (iRound > 0 && iRound <= iMaxRounds && (iMaxRounds - iRound) <= g_Settings.iTimeEndRounds && g_bActive) StartVote();
+	});
 
 	std::vector<std::string> vecCommands = split(g_RTVSettings.sVoteCommands.empty() ? "!rtv,rtv" : g_RTVSettings.sVoteCommands, ",");
 	std::vector<std::string> vecNominationCommands = split(g_Settings.sNominationCommands.empty() ? "!nominate,nominate" : g_Settings.sNominationCommands, ",");
@@ -490,21 +499,15 @@ void MapChooser::AllPluginsLoaded()
 		return false;
 	});
 
-	if(mp_timelimit->GetInt() > 0 && g_Settings.iTimeEnd > 0) {
+	if(g_Settings.iTimeEnd > 0) {
 		g_pUtils->CreateTimer(0.0f, [](){
+			if(mp_timelimit->GetInt() <= 0) return 0.0f;
 			int gameStart = (int)g_pUtils->GetCCSGameRules()->m_flGameStartTime();
 			int timelimit = (int)(mp_timelimit->GetInt() * 60);
 			int currentTime = (int)g_pUtils->GetCGlobalVars()->curtime;
 			int timeleft = timelimit - (currentTime - gameStart);
 			if(timeleft <= g_Settings.iTimeEnd && timeleft > 0 && g_bActive) StartVote();
 			return 0.0f;
-		});
-	} else if(mp_maxrounds->GetInt() > 0 && g_Settings.iTimeEndRounds > 0) {
-		g_pUtils->HookEvent(g_PLID, "round_start", [](const char* szName, IGameEvent* pEvent, bool bDontBroadcast) {
-			if (!pEvent) return;
-			int iRound = g_pUtils->GetCCSGameRules()->m_totalRoundsPlayed();
-			int iMaxRounds = mp_maxrounds->GetInt();
-			if (iRound > 0 && iRound <= iMaxRounds && (iMaxRounds - iRound) <= g_Settings.iTimeEndRounds && g_bActive) StartVote();
 		});
 	}
 }
@@ -517,7 +520,7 @@ const char* MapChooser::GetLicense()
 
 const char* MapChooser::GetVersion()
 {
-	return "1.0";
+	return "1.1";
 }
 
 const char* MapChooser::GetDate()

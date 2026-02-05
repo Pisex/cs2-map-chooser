@@ -70,6 +70,11 @@
 		"ru"	"Игрок %s предложил карту %s"
 		"en"	"Player %s has nominated map %s"
 	}
+	"ChangingLevel"
+	{
+		"ru"	"Смена карты на %s..."
+		"en"	"Changing level to %s..."
+	}
 
 	//MENU
 	"VoteMenuTitle"
