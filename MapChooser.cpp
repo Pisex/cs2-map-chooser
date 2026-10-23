@@ -48,11 +48,6 @@ std::vector<std::pair<std::string, std::string>> g_vecMaps;
 ConVarRefAbstract* mp_timelimit;
 ConVarRefAbstract* mp_maxrounds;
 
-CGameEntitySystem* GameEntitySystem()
-{
-	return g_pUtils->GetCGameEntitySystem();
-}
-
 int GetCountVotes()
 {
 	int iCount = 0;
@@ -193,7 +188,7 @@ void ChangeLevel()
 	g_pUtils->PrintToChatAll(GetTranslation("ChangingLevel"), szMap);
 	
 	if(!engine->IsMapValid(szMap)) {
-		g_SMAPI->Format(szBuffer, sizeof(szBuffer), "ds_workshop_changelevel %s", szMap);
+		g_SMAPI->Format(szBuffer, sizeof(szBuffer), "host_workshop_map %s", szMap);
 		g_pUtils->CreateTimer(g_Settings.iTimeoutBeforeVote, [szBuffer]() {
 			engine->ServerCommand(szBuffer);
 			return -1.0f;
@@ -213,7 +208,7 @@ void FinalizeVote()
 	for (int i = 0; i < 64; i++)
 	{
 		if(g_pPlayers->IsFakeClient(i)) continue;
-		if(g_iVotes[i] >= 0 && g_iVotes[i] < g_vecMaps.size()) {
+		if(g_iVotes[i] != -2 && g_iVotes[i] < g_vecMaps.size()) {
 			iVotes[g_iVotes[i]]++;
 		}
 	}
@@ -243,7 +238,7 @@ void StartVote(bool bForce = false)
 	for (int i = 0; i < 64; i++)
 	{
 		g_bVote[i] = false;
-		g_iVotes[i] = -1;
+		g_iVotes[i] = -2;
 	}
 	g_bActive = false;
 	if(!g_RTVSettings.bType && bForce) {
@@ -520,7 +515,7 @@ const char* MapChooser::GetLicense()
 
 const char* MapChooser::GetVersion()
 {
-	return "1.1";
+	return "1.2";
 }
 
 const char* MapChooser::GetDate()
